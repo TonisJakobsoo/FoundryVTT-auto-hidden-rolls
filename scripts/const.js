@@ -1,0 +1,1 @@
+export const AutoHiddenRollsId = "auto-hidden-rolls";

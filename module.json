@@ -1,0 +1,25 @@
+{
+  "id": "auto-hidden-rolls",
+  "title": "Auto Hidden Rolls",
+  "description": "Rolling in the deep",
+  "authors": [
+      {
+      "name": "Yoku"
+      }
+    ],
+  "version": "0.0.1",
+  "compatibility": {
+    "minimum": "10",
+    "verified": "12"
+  },
+	"esmodules": [
+		"scripts/module.js"
+	],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "./lang/en.json"
+    }
+  ]
+}

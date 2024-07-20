@@ -1,0 +1,6 @@
+{
+    "HIDDENROLLS.Enable": "Enable automatically hiding rolls",
+    "HIDDENROLLS.Configuration": "Change affected rolls",
+    "HIDDENROLLS.ConfigurationLabel": "Configure",
+    "HIDDENROLLS.instructions": "If Blind is selected, roll result will only visible to GM. Roll chat message will not appear to other players."
+}

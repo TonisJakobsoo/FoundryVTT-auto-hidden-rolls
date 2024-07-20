@@ -1,0 +1,61 @@
+<style>
+  .combined-toggle label {
+    padding: 0 8px !important;
+    border: 2px solid #ccc;
+    margin-right: -1px !important;
+	  transition: all 0.1s ease-in-out;
+  }
+
+  .combined-toggle label:hover {
+    cursor: pointer;
+  }
+
+  .combined-toggle input:checked + label {
+    background-color: rgba(0, 0, 0, 0.1);
+    box-shadow: none;
+    border: 2px groove var(--color-border-light-highlight)
+  }
+
+  .combined-toggle input {
+    display: none;
+  }
+</style>
+
+<form autocomplete="off" onsubmit="event.preventDefault();">
+    <p class="notes">{{localize 'HIDDENROLLS.instructions'}}</p>
+    <h3>Skill rolls</h2>
+    <ul class="">
+        {{#each rolls.skill as |skill|}}
+        <li class="form-group">
+            <label class="index">{{ localize skill.label }}</label>
+            <div class="form-fields combined-toggle">
+              {{#each ../rollModes as |mode|}}
+                <input type="radio" id="{{skill.name}}{{mode}}" name="{{skill.name}}" value="{{mode}}" {{checked skill.value}}/>
+                <label for="{{skill.name}}{{mode}}">{{mode}}</label>
+              {{/each}}
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+    
+    <h3>Other rolls</h2>
+    <ul class="">
+      {{#each rolls.other as |otherSkill|}}
+      <li class="form-group">
+          <label class="index">{{ otherSkill.label }}</label>
+          <div class="form-fields combined-toggle">
+            {{#each ../rollModes as |mode|}}
+              <input type="radio" id="{{otherSkill.name}}{{mode}}" name="{{otherSkill.name}}" value="{{mode}}" {{checked otherSkill.value}}/>
+              <label for="{{otherSkill.name}}{{mode}}">{{mode}}</label>
+            {{/each}}
+          </div>
+      </li>
+      {{/each}}
+    </ul>
+
+    <div class="form-group">
+        <button type="submit">
+            <i class="fas fa-save"></i> Submit
+        </button>
+    </div>
+</form>
