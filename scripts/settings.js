@@ -26,6 +26,9 @@ export function registerSettings(logger) {
                 perception: {
                     mode: CONST.DICE_ROLL_MODES.BLIND
                 },
+                death: {
+                    mode: CONST.DICE_ROLL_MODES.PRIVATE
+                },
                 skill: {
                     arcana: CONST.DICE_ROLL_MODES.BLIND,
                     deception: CONST.DICE_ROLL_MODES.BLIND,
