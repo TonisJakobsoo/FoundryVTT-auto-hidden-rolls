@@ -79,9 +79,9 @@ export class AutoHiddenRollsConfig extends FormApplication {
     }
 
     _getRollModes(current) {
-        const skills = Object.keys(CONFIG.PF2E.skillList).map(skill => ({
+        const skills = Object.keys(CONFIG.PF2E.skills).map(skill => ({
             name: 'skill.' + skill,
-            label: CONFIG.PF2E.skillList[skill],
+            label: CONFIG.PF2E.skills[skill].label,
             value: current.rollTypes.skill[skill] || 'default'
         }));
         const other = [
@@ -104,7 +104,7 @@ export class AutoHiddenRollsConfig extends FormApplication {
 
     /** @override */
     async _updateObject(event, formData) {
-        const permissions = expandObject(formData);
+        const permissions = foundry.utils.expandObject(formData);
         const currentSettings = await game.settings.get(AutoHiddenRollsId, "configuration");
         
         currentSettings.rollTypes.skill = {};
