@@ -49,6 +49,10 @@ export function registerSettings(logger) {
             logger.log("Config changed", config);
         }
     });
+
+    Handlebars.registerHelper('checkedIf', function (value, expected) {
+        return value === expected ? 'checked' : '';
+    });
 }
 
 export class AutoHiddenRollsConfig extends FormApplication {

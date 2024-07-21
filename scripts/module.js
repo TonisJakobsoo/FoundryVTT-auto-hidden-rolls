@@ -9,15 +9,15 @@ Hooks.once('init', async () => {
 });
 
 Hooks.once('ready', async () =>{
-    if (!game.user.isGM) {
+    //if (!game.user.isGM) {
         registerHooks(logger);
-    }
+    //}
     //new AutoHiddenRollsConfig().render(true);
 });
 
 function registerHooks(logger) {
     Hooks.on("closeCheckModifiersDialog", (dialog) => {
-        if (dialog.context.rollMode !== "roll") {
+        if (dialog.context.rollMode !== "publicroll") {
             return;
         }
         if (!game.settings.get(AutoHiddenRollsId, "enable")) {
