@@ -30,7 +30,7 @@
             <label class="index">{{ localize skill.label }}</label>
             <div class="form-fields combined-toggle">
               {{#each ../rollModes as |label mode|}}
-                <input type="radio" id="{{skill.name}}{{mode}}" name="{{skill.name}}" value="{{mode}}" {{checked skill.value}}/>
+                <input type="radio" id="{{skill.name}}{{mode}}" name="{{skill.name}}" value="{{mode}}" {{checkedIf skill.value mode}}/>
                 <label for="{{skill.name}}{{mode}}">{{label}}</label>
               {{/each}}
             </div>
@@ -44,9 +44,8 @@
       <li class="form-group">
           <label class="index">{{ otherSkill.label }}</label>
           <div class="form-fields combined-toggle">
-            {{otherSkill.value}}
             {{#each ../rollModes as |label mode|}}
-              <input type="radio" id="{{otherSkill.name}}{{mode}}" name="{{otherSkill.name}}" value="{{mode}}" {{checked otherSkill.value}}/>
+              <input type="radio" id="{{otherSkill.name}}{{mode}}" name="{{otherSkill.name}}" value="{{mode}}" {{checkedIf otherSkill.value mode}}/>
               <label for="{{otherSkill.name}}{{mode}}">{{label}}</label>
             {{/each}}
           </div>
