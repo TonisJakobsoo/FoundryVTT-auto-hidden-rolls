@@ -39,7 +39,8 @@ export function registerSettings(logger) {
                     religion: CONST.DICE_ROLL_MODES.BLIND,
                     society: CONST.DICE_ROLL_MODES.BLIND,
                     stealth: CONST.DICE_ROLL_MODES.BLIND,
-                    survival: CONST.DICE_ROLL_MODES.BLIND
+                    survival: CONST.DICE_ROLL_MODES.BLIND,
+                    lore: CONST.DICE_ROLL_MODES.BLIND
                 }
             },
         },
@@ -88,6 +89,11 @@ export class AutoHiddenRollsConfig extends FormApplication {
             label: CONFIG.PF2E.skills[skill].label,
             value: current.rollTypes.skill[skill] || 'default'
         }));
+        skills.push({
+            name: 'skill.lore',
+            label: 'Lore',
+            value: current.rollTypes.skill.lore || 'default'
+        });
         const other = [
             { 
                 name: 'other.perception',

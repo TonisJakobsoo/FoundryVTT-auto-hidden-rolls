@@ -7,9 +7,9 @@
       "name": "Yoku"
       }
     ],
-  "version": "0.0.1",
+  "version": "0.0.2",
   "compatibility": {
-    "minimum": "10",
+    "minimum": "12",
     "verified": "12"
   },
 	"esmodules": [

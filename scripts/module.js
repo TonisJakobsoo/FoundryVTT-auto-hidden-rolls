@@ -1,6 +1,6 @@
 import { Logger } from "./logger.js";
 import { AutoHiddenRollsId } from "./const.js";
-import { registerSettings, AutoHiddenRollsConfig } from "./settings.js";
+import { registerSettings } from "./settings.js";
 
 const logger = new Logger("PF2e Hide Rolls |");
 
@@ -9,47 +9,50 @@ Hooks.once('init', async () => {
 });
 
 Hooks.once('ready', async () =>{
-    //if (!game.user.isGM) {
+    if (!game.user.isGM) {
         registerHooks(logger);
-    //}
-    //new AutoHiddenRollsConfig().render(true);
+    }
 });
 
 function registerHooks(logger) {
-    Hooks.on("closeCheckModifiersDialog", (dialog) => {
-        if (dialog.context.rollMode !== "publicroll") {
-            return;
+    Hooks.on("preCreateChatMessage", (document, data, options) => {
+        const pf2e = data?.flags?.pf2e;
+        if (options.rollMode !== "publicroll" || !pf2e) {
+            return
         }
-        if (!game.settings.get(AutoHiddenRollsId, "enable")) {
-            return;
-        }
-        const config = game.settings.get('auto-hidden-rolls', 'configuration');
-        try {
-            if (dialog.context.type == undefined) {
-                if (dialog.check?.slug && dialog.check.slug === "Recovery Check" && config.rollTypes.death) {
-                    let rollMode = config.rollTypes.death.mode;
-                    logger.log(`Changing death save roll mode to ${rollMode}`);
-                    dialog.context.rollMode = rollMode;
-                }
+        const type = pf2e.context.type;
+        const config = game.settings.get(AutoHiddenRollsId, 'configuration');
+        debugger;
+        let rollMode;
+        if (type === "skill-check") {
+            if (config.rollTypes.skill.lore && pf2e.context.domains.includes("lore-skill-check")) {
+                rollMode = config.rollTypes.skill.lore;
+            } else {
+                rollMode = config.rollTypes.skill[pf2e.modifierName];
             }
+        }
+        else if (type === "perception-check") {
+            if (config.rollTypes.perception) {
+                rollMode = config.rollTypes.perception.mode;
+            }
+        }
+        else if (type === "flat-check" && pf2e.context.domains?.includes("dying-recovery-check")) {
+            if (config.rollTypes.death) {
+                rollMode = config.rollTypes.death.mode;
+            }
+        }
+        if (rollMode) {
+            logger.log(`Changing roll mode of ${type} to ${rollMode}`);
+            document.applyRollMode(rollMode);
 
-            switch (dialog.context.type) {
-                case "perception-check":
-                    if (config.rollTypes.perception) {
-                        logger.log(`Changing roll mode to ${config.rollTypes.perception.mode}`);
-                        dialog.context.rollMode = config.rollTypes.perception.mode;
-                    }
-                    break;
-                case "skill-check":
-                    const rollMode = config.rollTypes.skill[dialog.context.domains[0]];
-                    if (rollMode) {
-                        logger.log(`Changing ${dialog.context.domains[0]} roll mode to ${rollMode}`);
-                        dialog.context.rollMode = rollMode;
-                    }
-                    break;
-            }
-        } catch (error) {
-            logger.error(`Error changing roll mode of ${dialog.context.type}: ${error}`);
+            /** Possible one way to notify everyone                    **/
+            /*  Bugs TODO:                                              */
+            /*  - Roll result is visible to all players due to whisper  */
+            /*  - NotSoNiceDice are rolling and revealing the result    */
+
+            // const updates = {};
+            // updates.whisper = ChatMessage.getWhisperRecipients("players").map(u => u.id);
+            // document.updateSource(updates);
         }
-    })
+    });
 }
