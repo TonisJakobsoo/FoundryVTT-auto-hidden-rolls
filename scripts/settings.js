@@ -7,7 +7,7 @@ export function registerSettings(logger) {
         scope: "client",
         type: Boolean,
         config: true,
-        requiresReload: false,
+        requiresReload: true,
     });
 
     game.settings.registerMenu(AutoHiddenRollsId, "configuration", {
@@ -16,6 +16,18 @@ export function registerSettings(logger) {
         icon: "fas fa-cogs",
         type: AutoHiddenRollsConfig,
         restricted: true
+    });
+
+    game.settings.register(AutoHiddenRollsId, "isAutoRollMode", {
+        name: "HIDDENROLLS.Enable",
+        default: false,
+        scope: "client",
+        type: Boolean,
+        config: false,
+        requiresReload: false,
+        onChange: (value) => {
+            logger.log("AutoRollMode changed", value);
+        }
     });
 
     game.settings.register(AutoHiddenRollsId, "configuration", {
