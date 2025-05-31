@@ -16,27 +16,57 @@ Hooks.once('ready', async () =>{
 });
 
 function chatLogButtonAppender() {
-    const controls = ui.sidebar.element.find('#chat > #chat-controls > #dorako-rt-buttons');
+    //Quite sure can just use chat rendering hook instead
+    const controls = document.getElementById("roll-privacy")
     if (!controls) {
         logger.error("Could not find chat controls element");
         return;
     }
+
+    // Create the button with the specified attributes
+    const isEnabled = game.settings.get(AutoHiddenRollsId, 'isAutoRollMode');
     const button = document.createElement('button');
-    button.className = 'toggle button';
-    if (game.settings.get(AutoHiddenRollsId, 'isAutoRollMode')) {
-        controls.find("button.active").removeClass("active");
-        button.classList.add('active');
-    }
-    button.innerHTML = '<i class="fas fa-magic"></i>';
-    button.title = "Toggle Auto Hidden Rolls";
-    button.onclick = () => {
-        game.settings.set(AutoHiddenRollsId, 'isAutoRollMode', true);
-        controls.find("button.active").removeClass("active");
-        button.classList.add('active');
-    };   
+    button.type = 'button';
+    button.className = 'ui-control icon fa-solid fa-magic';
+    button.setAttribute('aria-pressed', isEnabled);
+    button.setAttribute('aria-label', 'Toggle Auto Hidden Rolls'); // Replace with localized mode.label if needed
     controls.append(button);
 
-    // Observe if dorako-rt-buttons are changed
+    // TODO UI doesn't really match the reality. Technically if roll doesn't trigger auto-roll-mode
+    // It will roll with the current active of the roll mode. UI should reflect that
+
+    // Reset UI state
+    if (isEnabled) {
+        const allButtons = controls.querySelectorAll('button[data-action="rollMode"]');
+        allButtons.forEach((btn) => {
+            btn.setAttribute('aria-pressed', false);
+        });
+    }
+
+    // Add click event listener
+    button.onclick = () => {
+        const previousState = game.settings.get(AutoHiddenRollsId, 'isAutoRollMode');
+        const isActive = !previousState;
+        game.settings.set(AutoHiddenRollsId, 'isAutoRollMode', isActive);
+        button.setAttribute('aria-pressed', isActive);
+
+        if (isActive) {
+            controls.querySelectorAll('button[data-action="rollMode"]').forEach((btn) => {
+                btn.setAttribute('aria-pressed', false);
+            });
+            button.setAttribute('aria-pressed', true);
+        } else {
+            // restore previous visual state
+            const currentRollMode = game.settings.get('core', 'rollMode');
+            const currentRollModeButton = controls.querySelector(`button[data-roll-mode="${currentRollMode}"]`);
+            currentRollModeButton.setAttribute('aria-pressed', true);
+        }
+    };
+
+    // Append the button to the controls
+
+
+    // Observe if are changed
     new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
@@ -53,8 +83,9 @@ function chatLogButtonAppender() {
     // For sanity also check if rolemode is changed somewhere else
     const origOnChange = game.settings.settings.get('core.rollMode').onChange;
     game.settings.settings.get('core.rollMode').onChange = (mode) => {
+        logger.log(`Roll mode changed to ${mode}`);
         game.settings.set(AutoHiddenRollsId, 'isAutoRollMode', false);
-        button.classList.remove('active');
+        button.setAttribute('aria-pressed', false);
         origOnChange(mode);
     };
 }
@@ -62,7 +93,7 @@ function chatLogButtonAppender() {
 function registerHookChatMessageInterceptor(logger) {    
     Hooks.on("preCreateChatMessage", (document, data, options) => {
         const pf2e = data?.flags?.pf2e;
-        if (!data?.flags?.pf2e || !game.settings.get(AutoHiddenRollsId, 'isAutoRollMode')) {
+        if (!pf2e || !pf2e.context || !game.settings.get(AutoHiddenRollsId, 'isAutoRollMode')) {
             return
         }
         const type = pf2e.context.type;

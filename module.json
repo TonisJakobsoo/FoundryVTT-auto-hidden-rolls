@@ -7,10 +7,10 @@
       "name": "Yoku"
       }
     ],
-  "version": "0.0.2",
+  "version": "0.0.3",
   "compatibility": {
-    "minimum": "12",
-    "verified": "12"
+    "minimum": "13",
+    "verified": "13"
   },
 	"esmodules": [
 		"scripts/module.js"
