@@ -12,6 +12,9 @@ Hooks.once('ready', async () =>{
     if (!game.user.isGM && game.settings.get(AutoHiddenRollsId, 'enable')) {
         chatLogButtonAppender();
         registerHookChatMessageInterceptor(logger);
+        if (game.settings.get(AutoHiddenRollsId, 'visibleAffectedRolls')) {
+            registerChatRendererHook();
+        }
     }
 });
 
@@ -116,6 +119,7 @@ function registerHookChatMessageInterceptor(logger) {
         }
         if (rollMode) {
             logger.log(`Changing roll mode of ${type} to ${rollMode}`);
+            document.updateSource({"flags.auto-hidden-rolls.changed": true})
             document.applyRollMode(rollMode);
 
             /** Possible one way to notify everyone                    **/
@@ -127,5 +131,11 @@ function registerHookChatMessageInterceptor(logger) {
             // updates.whisper = ChatMessage.getWhisperRecipients("players").map(u => u.id);
             // document.updateSource(updates);
         }
+    });
+}
+
+function registerChatRendererHook() {
+    Hooks.on('renderChatMessage', () => {
+        logger.log('Visible affected rolls not yet implemented');
     });
 }

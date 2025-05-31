@@ -10,6 +10,14 @@ export function registerSettings(logger) {
         requiresReload: true,
     });
 
+    game.settings.register(AutoHiddenRollsId, "visibleAffectedRolls", {
+        name: "HIDDENROLLS.VisibleAffectedRolls",
+        default: false,
+        scope: "client",
+        type: Boolean,
+        config: true,
+    });
+
     game.settings.registerMenu(AutoHiddenRollsId, "configuration", {
         name: "HIDDENROLLS.Configuration",
         label: "HIDDENROLLS.ConfigurationLabel",
