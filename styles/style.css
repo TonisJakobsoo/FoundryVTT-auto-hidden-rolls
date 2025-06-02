@@ -1,0 +1,4 @@
+.auto-hidden-roll-button.active {
+    box-shadow: 0 0 4px var(--toggle-active-border-color);
+    outline: 1px solid var(--toggle-active-border-color);
+}
