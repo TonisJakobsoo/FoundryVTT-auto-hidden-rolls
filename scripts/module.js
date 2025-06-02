@@ -33,6 +33,7 @@ function chatLogButtonAppender() {
     button.className = 'ui-control icon fa-solid fa-magic';
     button.setAttribute('aria-pressed', isEnabled);
     button.setAttribute('aria-label', 'Toggle Auto Hidden Rolls'); // Replace with localized mode.label if needed
+    // Append the button to the controls
     controls.append(button);
 
     // TODO UI doesn't really match the reality. Technically if roll doesn't trigger auto-roll-mode
@@ -65,9 +66,6 @@ function chatLogButtonAppender() {
             currentRollModeButton.setAttribute('aria-pressed', true);
         }
     };
-
-    // Append the button to the controls
-
 
     // Observe if are changed
     new MutationObserver((mutationsList) => {
@@ -121,21 +119,62 @@ function registerHookChatMessageInterceptor(logger) {
             logger.log(`Changing roll mode of ${type} to ${rollMode}`);
             document.updateSource({"flags.auto-hidden-rolls.changed": true})
             document.applyRollMode(rollMode);
-
-            /** Possible one way to notify everyone                    **/
-            /*  Bugs TODO:                                              */
-            /*  - Roll result is visible to all players due to whisper  */
-            /*  - NotSoNiceDice are rolling and revealing the result    */
-
-            // const updates = {};
-            // updates.whisper = ChatMessage.getWhisperRecipients("players").map(u => u.id);
-            // document.updateSource(updates);
         }
     });
 }
 
 function registerChatRendererHook() {
-    Hooks.on('renderChatMessage', () => {
-        logger.log('Visible affected rolls not yet implemented');
+    // TODO should use renderChatMessageHTML instead, but renderChatMessage hook is called later
+    // This means something like actually-private-rolls module will override our changes
+    Hooks.on('renderChatMessage', (message, [html], context) => {
+        if (message.blind == false || !message.getFlag('auto-hidden-rolls', 'changed')) {
+            return;
+        }
+
+        const pf2e = message.flags?.pf2e;
+        if (!pf2e || !pf2e.context) {
+            return;
+        }
+
+        const type = pf2e.context.type;
+        let skillType = 'Roll';
+
+        // Determine the skill type based on the message context
+        if (type === "skill-check") {
+            if (pf2e.context.domains?.includes("lore-skill-check")) {
+                skillType = 'Lore';
+            } else if (pf2e.modifierName) {
+                const skillConfig = CONFIG.PF2E?.skills?.[pf2e.modifierName];
+                if (skillConfig) {
+                    skillType = skillConfig?.label && game.i18n.format(skillConfig?.label);
+                } else {
+                    skillType = pf2e.modifierName || 'Skill';
+                }
+            } else {
+                skillType = 'Skill';
+            }
+        } else if (type === "perception-check") {
+            skillType = 'Perception';
+        } else if (type === "flat-check" && pf2e.context.domains?.includes("dying-recovery-check")) {
+            skillType = 'Death Saving';
+        }
+
+        // Change the html message
+        const baseMsg = html.dataset.messageId ? html : html.closest('[data-message-id]');
+        baseMsg?.classList.remove('actually-private-roll');
+        baseMsg?.querySelector('.message-content')?.replaceChildren();
+        const header = baseMsg?.querySelector('.message-header');
+        const existingFlavor = header?.querySelector('.flavor-text');
+
+        const flavorHtml = document.createElement('span');
+        flavorHtml.classList.add('flavor-text');
+        flavorHtml.innerHTML = game.i18n.format("HIDDENROLLS.VisibleAffectedChatMessage", { skillType });
+
+        if (existingFlavor) {
+            existingFlavor.replaceWith(flavorHtml);
+        } else {
+            header.append(flavorHtml);
+        }
+        logger.log(`Rendered chat message for ${type} with visible affected rolls: ${skillType}`);
     });
 }
